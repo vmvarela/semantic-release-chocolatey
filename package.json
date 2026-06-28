@@ -1,0 +1,36 @@
+{
+  "name": "@vmvarela/semantic-release-chocolatey",
+  "version": "0.0.0-development",
+  "description": "Package binaries as Chocolatey .nupkg during semantic-release",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
+  },
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "dependencies": {
+    "@vmvarela/semantic-release-shared": "^0.1.0"
+  },
+  "peerDependencies": {
+    "semantic-release": "^24.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@vmvarela/eslint-config": "file:../eslint-config",
+    "@vmvarela/tsconfig": "file:../tsconfig",
+    "semantic-release": "^24.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
