@@ -57,6 +57,27 @@ Install-ChocolateyZipPackage `
   -UnzipLocation "$toolsDir"
 ```
 
+## Publish (push to Chocolatey Community Repository)
+
+By default the plugin only creates the `.nupkg` during the `prepare` step. To
+automatically push it to the [Chocolatey Community
+Repository](https://push.chocolatey.org/), set the `CHOCOLATEY_API_KEY`
+environment variable:
+
+```bash
+export CHOCOLATEY_API_KEY="your-api-key"
+```
+
+When `CHOCOLATEY_API_KEY` is present, the `publish` step runs:
+
+```
+choco push dist/{name}.{version}.nupkg --source https://push.chocolatey.org/ --api-key {key}
+```
+
+When the env var is absent, `publish` logs a skip message and returns — safe to
+use with a single `semantic-release` config across repos that may or may not
+need publishing.
+
 ## Requirements
 
 - `zip` command available on `$PATH`

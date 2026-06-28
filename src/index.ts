@@ -1,6 +1,6 @@
 import { ChocolateyConfigSchema, exec, template } from '@vmvarela/semantic-release-shared';
 import type { ChocolateyConfig, PluginContext, PrepareResult } from '@vmvarela/semantic-release-shared';
-import { access, mkdtemp, readFile, writeFile, cp } from 'node:fs/promises';
+import { access, mkdtemp, readFile, writeFile, readdir, cp } from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 
@@ -79,4 +79,46 @@ export async function prepare(
     artifacts: [{ path: `dist/${nupkgName}`, name: nupkgName, type: 'package' as const }],
     version,
   };
+}
+
+export async function publish(
+  _config: unknown,
+  context: PluginContext,
+): Promise<void> {
+  const apiKey = context.env.CHOCOLATEY_API_KEY;
+
+  if (!apiKey) {
+    context.logger.log('[chocolatey] SKIP publish — no CHOCOLATEY_API_KEY set');
+    return;
+  }
+
+  // Find .nupkg in dist/
+  const distDir = path.resolve(context.cwd, 'dist');
+  const files = await readdir(distDir);
+  const nupkgFiles = files.filter((f) => f.endsWith('.nupkg'));
+
+  if (nupkgFiles.length === 0) {
+    throw new Error(
+      `[chocolatey] No .nupkg files found in ${distDir} — run prepare step first`,
+    );
+  }
+
+  const nupkgName = nupkgFiles[0];
+  const nupkgPath = path.join(distDir, nupkgName);
+
+  context.logger.log(`[chocolatey] Pushing ${nupkgName} to Chocolatey Community Repository...`);
+
+  const result = await exec('choco', [
+    'push', nupkgPath,
+    '--source', 'https://push.chocolatey.org/',
+    '--api-key', apiKey,
+  ]);
+
+  if (result.exitCode !== 0) {
+    throw new Error(
+      `[chocolatey] choco push failed (exit ${result.exitCode}): ${result.stderr}`,
+    );
+  }
+
+  context.logger.log(`[chocolatey] Published ${nupkgName} successfully`);
 }
