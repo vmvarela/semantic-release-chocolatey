@@ -1,6 +1,6 @@
 {
   "name": "@vmvarela/semantic-release-chocolatey",
-  "version": "0.0.0-development",
+  "version": "0.1.1",
   "description": "Package binaries as Chocolatey .nupkg during semantic-release",
   "type": "module",
   "main": "dist/index.js",
